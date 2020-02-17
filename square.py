@@ -10,20 +10,21 @@ class square:
         self.imageCorners = corners
     def setRealCorners(self,corners):
         self.realCorners = corners
-    def get_r_leg_Pts(self):
-        points_list = []
-        points_list.append((self.realCorners[2][1], -(self.realCorners[2][0]) ,self.realCorners[2][2]))
-        points_list.append((self.realCorners[1][1], -(self.realCorners[1][0]) ,self.realCorners[1][2]))
-        points_list.append((self.realCorners[0][1], -(self.realCorners[0][0]) ,self.realCorners[0][2]))
-        points_list.append((self.realCorners[3][1], -(self.realCorners[3][0]) ,self.realCorners[3][2]))
-        return points_list
-    def get_l_leg_Pts(self):
-        points_list = []
-        points_list.append((self.realCorners[0][1], -(self.realCorners[0][0]) ,self.realCorners[0][2]))
-        points_list.append((self.realCorners[3][1], -(self.realCorners[3][0]) ,self.realCorners[3][2]))
-        points_list.append((self.realCorners[2][1], -(self.realCorners[2][0]) ,self.realCorners[2][2]))
-        points_list.append((self.realCorners[1][1], -(self.realCorners[1][0]) ,self.realCorners[1][2]))
-        return points_list
+    def get_leg_Pts_4_kinematics(self):
+        if self.id == 2:
+            points_list = []
+            points_list.append((self.realCorners[2][1], -(self.realCorners[2][0]) ,self.realCorners[2][2]))
+            points_list.append((self.realCorners[1][1], -(self.realCorners[1][0]) ,self.realCorners[1][2]))
+            points_list.append((self.realCorners[0][1], -(self.realCorners[0][0]) ,self.realCorners[0][2]))
+            points_list.append((self.realCorners[3][1], -(self.realCorners[3][0]) ,self.realCorners[3][2]))
+            return points_list
+        elif self.id == 1:
+            points_list = []
+            points_list.append((self.realCorners[0][1], -(self.realCorners[0][0]) ,self.realCorners[0][2]))
+            points_list.append((self.realCorners[3][1], -(self.realCorners[3][0]) ,self.realCorners[3][2]))
+            points_list.append((self.realCorners[2][1], -(self.realCorners[2][0]) ,self.realCorners[2][2]))
+            points_list.append((self.realCorners[1][1], -(self.realCorners[1][0]) ,self.realCorners[1][2]))
+            return points_list
     def get_Pts_for_show(self):
         points_list = []
         points_list.append(( -(self.realCorners[0][1]),self.realCorners[0][0] ,self.realCorners[0][2]))

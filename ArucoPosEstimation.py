@@ -20,21 +20,23 @@ cam0 = cameraConfig.camera(cameraIndx)
 cam0.set_camera_config()
 def show_desired_in_image(r_leg_square,l_leg_square,CAMERA = None):
     desired_Pts_on_image = []
-    r_leg_Pts = r_leg_square.get_leg_Pts()
-    l_leg_Pts = l_leg_square.get_leg_Pts()
+    r_leg_Pts = r_leg_square.get_Pts_for_show()
+    l_leg_Pts = l_leg_square.get_Pts_for_show()
     if CAMERA == None:
-        _ ,tmp_mat = cam0.frame
+        tmp_mat = cam0.frame.copy()
     else:
         CAMERA.update_frame()
-        tmp_mat = CAMERA.frame
-    for i in range(len(4)):
+        tmp_mat = CAMERA.frame.copy()
+    for i in range(4):
         row,col = world_2_image(r_leg_Pts[i] ,cam0.fX2Meter ,cam0.fY2Meter ,cam0.cX2Meter ,cam0.cY2Meter ,cameraConfig.sX ,cameraConfig.sY)
         desired_Pts_on_image = (int(col) ,int(row))
-        cv2.circle(tmp_mat ,desired_Pts_on_image[i] ,3 ,(255 , 0 ,0) ,thickness = -1 ,lineType = 8 ,shift = 0)
-    if tmp_mat == None:
-        cv2.imshow("<< Desired Squares IMG >>" ,tmp_mat)
-        cv2.waitKey(900)
-        cv2.destroyAllWindows()
+        cv2.circle(tmp_mat ,desired_Pts_on_image ,3 ,(255 , 0 ,0) ,thickness = -1 ,lineType = 8 ,shift = 0)
+        row,col = world_2_image(l_leg_Pts[i] ,cam0.fX2Meter ,cam0.fY2Meter ,cam0.cX2Meter ,cam0.cY2Meter ,cameraConfig.sX ,cameraConfig.sY)
+        desired_Pts_on_image = (int(col) ,int(row))
+        cv2.circle(tmp_mat ,desired_Pts_on_image ,3 ,(0 , 0 ,0) ,thickness = -1 ,lineType = 8 ,shift = 0)
+    cv2.imshow("<< Desired Squares IMG >>" ,tmp_mat)
+    cv2.waitKey(30)
+    # cv2.destroyAllWindows()
 def get_camera_log():
     cam0.update_frame()
     h ,w = cam0.frame.shape[:2]
@@ -45,7 +47,6 @@ def get_camera_log():
     parameters = aruco.DetectorParameters_create()
     corners ,ids ,rejectedImgPoints = aruco.detectMarkers(gray ,aruco_dict ,parameters = parameters)
     cam0.frame = aruco.drawDetectedMarkers(undistorted.copy() ,corners ,ids)
-    cv2.imshow("arucoes drawed" ,cam0.frame)
     arucoList = []
     if ids is not None:
         for i in range(len(ids)):

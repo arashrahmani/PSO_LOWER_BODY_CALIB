@@ -37,7 +37,7 @@ def mdh(_input, alpha, a, theta, d):
     f = rotateZ(f,theta)
     return f 
 
-def calculatePoints(q):
+def calculate_r_Pts(q):
     
     f = np.eye(4, dtype=float)
     f = translate(f,0.05,0.1,-0.0055)
@@ -60,11 +60,25 @@ def calculatePoints(q):
     
     return(p1,p2,p3,p4)
     
-
-# def cost_fn(y_true, q):
-#     cost = zeros([])
-#     for i in range(shape(q)[0]):
-#         points = calculatePoints(q[i,:])
-#         cost += reduce_sum( square( y_true[i,:]-points) )
-#     return cost/cast(shape(q)[0],float32)
-
+def calculate_l_Pts(q):
+    
+    f = np.eye(4, dtype=float)
+    f = translate(f,-0.05,0.1,-0.0055)
+    f = mdh(f,0., 0., q[0], 0.)
+    f = mdh(f, math.pi/2., 0., q[1]+(math.pi/2.) ,0.)
+    f = mdh(f, math.pi/2, 0, q[2], 0)
+    f = mdh(f, 0.,0.120, q[3] ,0.)
+    f = mdh(f, 0.,0.120, q[4] ,0.)
+    f = mdh(f,-1*math.pi/2, 0., q[5]-(math.pi/2), 0.)
+    f = mdh(f,-1*math.pi/2, 0., 0., 0.0405)
+    p1 = translate(f,-0.00798,-0.04193,0)
+    p2 = translate(f,0.02204,-0.04193,0)
+    p3 = translate(f,0.02204,-0.07195,0)
+    p4 = translate(f,-0.00798,-0.07195,0)
+    
+    p1 = p1[0:3,3]
+    p2 = p2[0:3,3]
+    p3 = p3[0:3,3]
+    p4 = p4[0:3,3]
+    
+    return(p1,p2,p3,p4)

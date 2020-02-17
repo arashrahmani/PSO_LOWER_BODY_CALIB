@@ -29,7 +29,7 @@ def init():
     set_torque_enable()
     commands = get_command()
     hardnness = set_hardness(init_hardness)
-    for k,v in enumerate(trajectoryGenerator.trajectoeies[0]):
+    for k,v in enumerate(trajectoryGenerator.init_state):
         commands[k] = v*math.pi/180
     set_command(commands)
     # commands = get_command()

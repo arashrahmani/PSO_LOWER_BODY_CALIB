@@ -6,46 +6,74 @@ import F_kine
 import time
 import ArucoPosEstimation
 import json
-n_steps = 20
+import math
+
+r_logs = []
+l_logs = []
+n_steps = 10
 wait_time_sec = 2
 r_leg_offsets = [0.0,0.0,0.0,0.0,0.0,0.0]
 l_leg_offsets = [0.0,0.0,0.0,0.0,0.0,0.0]
 initial = [1.0,-1.0,1.0,-1.0,1.0,-1.0]                        # initial starting location [x1,x2...]
-bounds=[(-6.5,6.5),(-6.5,6.5),(-6.5,6.5),(-6.5,6.5),(-6.5,6.5),(-6.5,6.5)]  # input bounds [(x1_min,x1_max),(x2_min,x2_max)...]
+bounds = [(-6.5,6.5),(-6.5,6.5),(-6.5,6.5),(-6.5,6.5),(-6.5,6.5),(-6.5,6.5)]  # input bounds [(x1_min,x1_max),(x2_min,x2_max)...]
 def collect_dataSet():
-    logs = []
+    right_logs = []
+    left_logs = []
     time.sleep(1)
-    for key,val in enumerate(trajectoryGenerator.trajectoeies):
-        if key != len(trajectoryGenerator.trajectoeies) - 1:
-            trajectoryGenerator.trajectory_interpolate_record(val,trajectoryGenerator.trajectoeies[key + 1] ,n_steps ,wait_time_sec ,logs)
-    return logs
+    cam_log_squares = ArucoPosEstimation.get_camera_log()
+    r_leg_init_angles = [(trajectoryGenerator.init_state * math.pi / 180)[i] for i in range(11,17,1)]
+    l_leg_init_angles = [(trajectoryGenerator.init_state * math.pi / 180)[i] for i in range(5,11,1)]
+    for i in range (len(cam_log_squares)):
+        if cam_log_squares[i].id == 2:
+            r_logs.append([r_leg_init_angles, cam_log_squares[i].get_leg_Pts_4_kinematics()])
+        elif cam_log_squares[i].id == 1:
+            l_logs.append([l_leg_init_angles, cam_log_squares[i].get_leg_Pts_4_kinematics()])
+    for key,val in enumerate(trajectoryGenerator.r_leg_states):
+        if key != len(trajectoryGenerator.r_leg_states) - 1:
+            print('value is: ',val)
+            trajectoryGenerator.trajectory_interpolate_record(val,trajectoryGenerator.r_leg_states[key + 1] ,n_steps ,wait_time_sec ,right_logs,l_logs = None)
+    for key,val in enumerate(trajectoryGenerator.l_leg_states):
+        if key != len(trajectoryGenerator.l_leg_states) - 1:
+            trajectoryGenerator.trajectory_interpolate_record(val,trajectoryGenerator.l_leg_states[key + 1] ,n_steps ,wait_time_sec ,left_logs)
+    return right_logs,left_logs
 
+
+def r_cost_func(offsets):
+    cost = np.zeros(len(r_logs))
+    for i in range(len(r_logs)):
+        desired_points = r_logs[i][1]
+        calculated_points = F_kine.calculate_r_Pts(np.add(r_logs[i][0] , offsets))
+        for j in range(0,4):
+            dist = np.linalg.norm(desired_points[j] - calculated_points[j])
+            cost[i] = cost[i] + (dist**2)
+    cost = np.sum(cost)/float(len(r_logs))
+    return cost
+def l_cost_func(offsets):
+    cost = np.zeros(len(l_logs))
+    for i in range(len(l_logs)):
+        desired_points = l_logs[i][1]
+        calculated_points = F_kine.calculate_l_Pts(np.add(l_logs[i][0] , offsets))
+        for j in range(0,4):
+            dist = np.linalg.norm(desired_points[j] - calculated_points[j])
+            cost[i] = cost[i] + (dist**2)
+    cost = np.sum(cost)/float(len(l_logs))
+    return cost
 ActuatorComm.init()
-
 while (True):
     command = input("hello, issue your command my lord >> :D __DELI__")
     if command == 'c':
-        logs = collect_dataSet()
-        with open('data.txt', 'w') as outfile:
-            json.dump(logs, outfile)
-
+        r_logs,l_logs = collect_dataSet()
         #--- COST FUNCTION ------------------------------------------------------------+
         # function we are attempting to optimize (minimize)
-        def cost_func(offsets):
-            cost = np.zeros(len(logs))
-            for i in range(len(logs)):
-                desired_points = logs[i][1]
-                calculated_points = F_kine.calculatePoints(np.add(logs[i][0] , offsets))
-                for j in range(0,4):
-                    dist = np.linalg.norm(desired_points[j] - calculated_points[j])
-                    cost[i] = cost[i] + (dist**2)
-            cost = np.sum(cost)/float(len(logs))
-            return cost
-        print("calibrating ...\n")
-        R_leg_optimizer = PSO_optimizer.PSO(cost_func,initial,bounds,num_particles=20,maxiter=100)
-        print('my best: ',R_leg_optimizer.best_global_pos)
+        print("calibrating right leg ...\n")
+        R_leg_optimizer = PSO_optimizer.PSO(r_cost_func,initial,bounds,num_particles = 20,maxiter = 100)
+        print("calibrating left leg ...\n")
+        L_leg_optimizer = PSO_optimizer.PSO(l_cost_func,initial,bounds,num_particles = 20,maxiter = 100)
+        print('Best Right Leg Params:\n',R_leg_optimizer.best_global_pos)
+        print('Best Left Leg Params:\n',L_leg_optimizer.best_global_pos)
     elif command == 't':
         print("test mode ")
-        ActuatorComm.test(r_leg_offsets,l_leg_offsets)
-        # [0., 0., 90.,  8., -30., -0.,  0., -0.,  0., -0., 0.,    1.2667777577605168, -1.2075711459265237, 1.4420370383704575, -0.8310515094327424, 0.38372034673184086, 0.2912239340130389     , 90., -8., -30.])
-        
+        r_leg_offsets = [0.29886665124652595, -1.6179602230153438, 0.23363795560316034, -0.4404054131281156, 0.2451376754100358, 0.17633758432467878]
+        l_leg_offsets = [-1.7979332135203556, -0.5225758641408023, 1.865215675904088, -0.9110044505105875, -0.07877740180470048, -0.19298324719643106] 
+        all_motors = [0., 0., 90.,  8., -30.]+l_leg_offsets+ r_leg_offsets+[ 90., -8., -30.]
+        ActuatorComm.test(all_motors)
