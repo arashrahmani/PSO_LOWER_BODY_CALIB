@@ -7,7 +7,7 @@ import time
 import ArucoPosEstimation
 import json
 import math
-
+import cv2
 r_logs = []
 l_logs = []
 n_steps = 10
@@ -19,7 +19,7 @@ bounds = [(-6.5,6.5),(-6.5,6.5),(-6.5,6.5),(-6.5,6.5),(-6.5,6.5),(-6.5,6.5)]  # 
 def collect_dataSet():
     right_logs = []
     left_logs = []
-    time.sleep(1)
+    time.sleep(wait_time_sec)
     cam_log_squares = ArucoPosEstimation.get_camera_log()
     r_leg_init_angles = [(trajectoryGenerator.init_state * math.pi / 180)[i] for i in range(11,17,1)]
     l_leg_init_angles = [(trajectoryGenerator.init_state * math.pi / 180)[i] for i in range(5,11,1)]
@@ -28,13 +28,13 @@ def collect_dataSet():
             r_logs.append([r_leg_init_angles, cam_log_squares[i].get_leg_Pts_4_kinematics()])
         elif cam_log_squares[i].id == 1:
             l_logs.append([l_leg_init_angles, cam_log_squares[i].get_leg_Pts_4_kinematics()])
+    time.sleep(wait_time_sec)
     for key,val in enumerate(trajectoryGenerator.r_leg_states):
         if key != len(trajectoryGenerator.r_leg_states) - 1:
-            print('value is: ',val)
-            trajectoryGenerator.trajectory_interpolate_record(val,trajectoryGenerator.r_leg_states[key + 1] ,n_steps ,wait_time_sec ,right_logs,l_logs = None)
+            trajectoryGenerator.trajectory_interpolate_record(val,trajectoryGenerator.r_leg_states[key + 1] ,n_steps ,wait_time_sec ,right_logs,None)
     for key,val in enumerate(trajectoryGenerator.l_leg_states):
         if key != len(trajectoryGenerator.l_leg_states) - 1:
-            trajectoryGenerator.trajectory_interpolate_record(val,trajectoryGenerator.l_leg_states[key + 1] ,n_steps ,wait_time_sec ,left_logs)
+            trajectoryGenerator.trajectory_interpolate_record(val,trajectoryGenerator.l_leg_states[key + 1] ,n_steps ,wait_time_sec ,None,left_logs)
     return right_logs,left_logs
 
 
@@ -65,6 +65,7 @@ while (True):
         r_logs,l_logs = collect_dataSet()
         #--- COST FUNCTION ------------------------------------------------------------+
         # function we are attempting to optimize (minimize)
+        cv2.destroyAllWindows()
         print("calibrating right leg ...\n")
         R_leg_optimizer = PSO_optimizer.PSO(r_cost_func,initial,bounds,num_particles = 20,maxiter = 100)
         print("calibrating left leg ...\n")
@@ -73,7 +74,7 @@ while (True):
         print('Best Left Leg Params:\n',L_leg_optimizer.best_global_pos)
     elif command == 't':
         print("test mode ")
-        r_leg_offsets = [0.29886665124652595, -1.6179602230153438, 0.23363795560316034, -0.4404054131281156, 0.2451376754100358, 0.17633758432467878]
+        r_leg_offsets = [0.26339805612907735, -1.1908196013683745, 1.2737564840879076, -1.4278649142094448, 0.6466623868587632, 0.14110476928785157]
         l_leg_offsets = [-1.7979332135203556, -0.5225758641408023, 1.865215675904088, -0.9110044505105875, -0.07877740180470048, -0.19298324719643106] 
         all_motors = [0., 0., 90.,  8., -30.]+l_leg_offsets+ r_leg_offsets+[ 90., -8., -30.]
         ActuatorComm.test(all_motors)

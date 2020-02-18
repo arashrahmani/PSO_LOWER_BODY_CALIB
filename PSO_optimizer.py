@@ -79,7 +79,6 @@ class PSO():
         # begin optimization loop
         i=0
         while i < maxiter:
-            #print i,err_best_g
             # cycle through particles in swarm and evaluate fitness
             for j in range(0,num_particles):
                 swarm[j].evaluate(costFunc)
@@ -94,9 +93,7 @@ class PSO():
                 swarm[j].update_velocity(pos_best_g)
                 swarm[j].update_position(bounds)
             i+=1
-
-        # print final results
-        print ('FINAL:' , pos_best_g , '\nErr:' , err_best_g)
+            
         self.best_global_pos = pos_best_g
 if __name__ == "__PSO__":
     main()

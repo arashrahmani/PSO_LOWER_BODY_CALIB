@@ -19,21 +19,19 @@ cameraIndx = 0
 cam0 = cameraConfig.camera(cameraIndx)
 cam0.set_camera_config()
 def show_desired_in_image(r_leg_square,l_leg_square,CAMERA = None):
-    desired_Pts_on_image = []
     r_leg_Pts = r_leg_square.get_Pts_for_show()
     l_leg_Pts = l_leg_square.get_Pts_for_show()
     if CAMERA == None:
         tmp_mat = cam0.frame.copy()
     else:
-        CAMERA.update_frame()
         tmp_mat = CAMERA.frame.copy()
     for i in range(4):
         row,col = world_2_image(r_leg_Pts[i] ,cam0.fX2Meter ,cam0.fY2Meter ,cam0.cX2Meter ,cam0.cY2Meter ,cameraConfig.sX ,cameraConfig.sY)
-        desired_Pts_on_image = (int(col) ,int(row))
-        cv2.circle(tmp_mat ,desired_Pts_on_image ,3 ,(255 , 0 ,0) ,thickness = -1 ,lineType = 8 ,shift = 0)
+        desired_r_Pts_on_image = (int(col) ,int(row))
         row,col = world_2_image(l_leg_Pts[i] ,cam0.fX2Meter ,cam0.fY2Meter ,cam0.cX2Meter ,cam0.cY2Meter ,cameraConfig.sX ,cameraConfig.sY)
-        desired_Pts_on_image = (int(col) ,int(row))
-        cv2.circle(tmp_mat ,desired_Pts_on_image ,3 ,(0 , 0 ,0) ,thickness = -1 ,lineType = 8 ,shift = 0)
+        desired_l_Pts_on_image = (int(col) ,int(row))
+        cv2.circle(tmp_mat ,desired_r_Pts_on_image ,3 ,(10,255,10) ,thickness = -1 ,lineType = 8 ,shift = 0)
+        cv2.circle(tmp_mat ,desired_l_Pts_on_image ,3 ,(10 , 255 ,10) ,thickness = -1 ,lineType = 8 ,shift = 0)
     cv2.imshow("<< Desired Squares IMG >>" ,tmp_mat)
     cv2.waitKey(30)
     # cv2.destroyAllWindows()
