@@ -46,7 +46,7 @@ def get_camera_log():
     corners ,ids ,rejectedImgPoints = aruco.detectMarkers(gray ,aruco_dict ,parameters = parameters)
     cam0.frame = aruco.drawDetectedMarkers(undistorted.copy() ,corners ,ids)
     arucoList = []
-    if ids is not None:
+    if len(ids) == 2:
         for i in range(len(ids)):
             corner2Pix = corners[i][0]
             corner2metre = np.zeros((4 ,2))
