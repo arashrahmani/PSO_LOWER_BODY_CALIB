@@ -40,5 +40,3 @@ def test(test_set):
     for k,v in enumerate(test_set):
         commands[k] = v*math.pi/180
     set_command(commands)
-
-    

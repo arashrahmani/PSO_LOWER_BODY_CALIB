@@ -21,8 +21,9 @@ cam0.set_camera_config()
 def show_desired_in_image(r_leg_square,l_leg_square,CAMERA = None):
     r_leg_Pts = r_leg_square.get_Pts_for_show()
     l_leg_Pts = l_leg_square.get_Pts_for_show()
-    if CAMERA == None:
-        tmp_mat = cam0.frame.copy()
+    if CAMERA is None:
+        cam0.update_frame()
+        tmp_mat=cam0.frame
     else:
         tmp_mat = CAMERA.frame.copy()
     for i in range(4):
@@ -33,7 +34,10 @@ def show_desired_in_image(r_leg_square,l_leg_square,CAMERA = None):
         cv2.circle(tmp_mat ,desired_r_Pts_on_image ,3 ,(10,255,10) ,thickness = -1 ,lineType = 8 ,shift = 0)
         cv2.circle(tmp_mat ,desired_l_Pts_on_image ,3 ,(10 , 255 ,10) ,thickness = -1 ,lineType = 8 ,shift = 0)
     cv2.imshow("<< Desired Squares IMG >>" ,tmp_mat)
+    #           ================================= 1.SHOULD BE TESTED ============================================
     cv2.waitKey(30)
+    
+    
     # cv2.destroyAllWindows()
 def get_camera_log():
     cam0.update_frame()
@@ -47,7 +51,7 @@ def get_camera_log():
     cam0.frame = aruco.drawDetectedMarkers(undistorted.copy() ,corners ,ids)
     arucoList = []
     if len(ids) == 2:
-        for i in range(len(ids)):
+        for i in range(2):
             corner2Pix = corners[i][0]
             corner2metre = np.zeros((4 ,2))
             corners3D = np.zeros((4 ,3))
@@ -76,7 +80,8 @@ def get_camera_log():
             for cornerNum in range(0 ,4):
                 corners3D[cornerNum][0] = kc[cornerNum][0] * corners3D[cornerNum][2]
                 corners3D[cornerNum][1] = kc[cornerNum][1] * corners3D[cornerNum][2]
-                arucoList.append(square(corner2metre ,corners3D ,arucoLength ,kc,ids[i]))
+                # =============================== 2.BUG FIX ===============================================
+            arucoList.append(square(corner2metre ,corners3D ,arucoLength ,kc,ids[i]))
             # print(corners3D)
         return arucoList
     else:

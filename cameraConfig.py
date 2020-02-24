@@ -31,7 +31,8 @@ class camera:
         self.cX2Meter = cX2Pixel * sX
         self.cY2Meter = cY2Pixel * sY
     def update_frame(self):
-        _ ,self.frame = self.videoCap.read()
+        _ ,fr = self.videoCap.read()
+        self.frame = fr.copy()
     def set_camera_config(self):
         self.videoCap.set(3, 1920)
         self.videoCap.set(4, 1080)
