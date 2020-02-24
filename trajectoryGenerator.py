@@ -56,7 +56,6 @@ def trajectory_interpolate_record(start_state ,end_state ,n_steps ,wait_time ,r_
             time.sleep(wait_time)
             cam_log_squares = ArucoPosEstimation.get_camera_log()
             q = [(start_state[j] * math.pi / 180) for j in range(11,17,1)]
-            print("fucking q is:\n",q)
             r_leg_calculated_Pts = square.square(None,F_kine.calculate_r_Pts(q),ArucoPosEstimation.arucoLength,None,2)
             l_leg_calculated_Pts = square.square(None,F_kine.calculate_l_Pts(init_l_q),ArucoPosEstimation.arucoLength,None,1)
             ArucoPosEstimation.show_desired_in_image(r_leg_calculated_Pts,l_leg_calculated_Pts)
