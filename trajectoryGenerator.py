@@ -28,23 +28,23 @@ l_leg_states.append(init_state)
 l_leg_states.append(np.asarray([0., 0., 90.,  8., -30., -0.,  0., -40., 40., -0., 0., -0.,  0., -0., 0.,-0, 0., 90., -8., -30.]))
 l_leg_states.append(np.asarray([0., 0., 90.,  8., -30., -0.,  0., -30.,  0., -0., 0., -0.,  0., -0., 0.,-0, 0., 90., -8., -30.]))
 l_leg_states.append(np.asarray([0., 0., 90.,  8., -30., -0.,  5.,  -0.,  0., -0., 0., -0.,  0., -0., 0.,-0, 0., 90., -8., -30.]))
-# l_leg_states.append(np.asarray([0., 0., 90.,  8., -30., -0.,  5.,  22.,  0., -0., 0., -0.,  0., -0., 0.,-0, 0., 90., -8., -30.]))
-# l_leg_states.append(np.asarray([0., 0., 90.,  8., -30., -0.,  4., -30., 40., -0., 0., -0.,  0., -0., 0.,-0, 0., 90., -8., -30.]))
-# l_leg_states.append(np.asarray([0., 0., 90.,  8., -30., -0.,  0.,  -0.,  0., -0., 0., -0.,  0., -0., 0.,-0, 0., 90., -8., -30.]))
+l_leg_states.append(np.asarray([0., 0., 90.,  8., -30., -0.,  5.,  22.,  0., -0., 0., -0.,  0., -0., 0.,-0, 0., 90., -8., -30.]))
+l_leg_states.append(np.asarray([0., 0., 90.,  8., -30., -0.,  4., -30., 40., -0., 0., -0.,  0., -0., 0.,-0, 0., 90., -8., -30.]))
+l_leg_states.append(np.asarray([0., 0., 90.,  8., -30., -0.,  0.,  -0.,  0., -0., 0., -0.,  0., -0., 0.,-0, 0., 90., -8., -30.]))
 
 #Right leg
 r_leg_states.append(init_state)
 
 #=============================================================================
-r_leg_states.append(np.asarray([0., 0., 90.,  8., -30., -0.,  0., -0.,  0., -0., 0., -100., -0., -0., 0.,-0, 0., 90., -8., -30.]))
+# r_leg_states.append(np.asarray([0., 0., 90.,  8., -30., -0.,  0., -0.,  0., -0., 0., -100., -0., -0., 0.,-0, 0., 90., -8., -30.]))
 
 #==============================================
-# r_leg_states.append(np.asarray([0., 0., 90.,  8., -30., -0.,  0., -0.,  0., -0., 0., -0., -0., -40., 40.,-0, 0., 90., -8., -30.]))
-# r_leg_states.append(np.asarray([0., 0., 90.,  8., -30., -0.,  0., -0.,  0., -0., 0., -0., -0., -30., 0.,-0, 0., 90., -8., -30.]))
-# r_leg_states.append(np.asarray([0., 0., 90.,  8., -30., -0.,  0., -0.,  0., -0., 0., -0., -5., -0., 0.,-0, 0., 90., -8., -30.]))
-# r_leg_states.append(np.asarray([0., 0., 90.,  8., -30., -0.,  0., -0.,  0., -0., 0., -0., -5., 22., 0.,-0, 0., 90., -8., -30.]))
-# r_leg_states.append(np.asarray([0., 0., 90.,  8., -30., -0.,  0., -0.,  0., -0., 0., -0., -4., -30., 0.,-0, 0., 90., -8., -30.]))
-# r_leg_states.append(np.asarray([0., 0., 90.,  8., -30., -0.,  0.,  -0.,  0., -0., 0., -0.,  0., -0., 0.,-0, 0., 90., -8., -30.]))
+r_leg_states.append(np.asarray([0., 0., 90.,  8., -30., -0.,  0., -0.,  0., -0., 0., -0., -0., -40., 40.,-0, 0., 90., -8., -30.]))
+r_leg_states.append(np.asarray([0., 0., 90.,  8., -30., -0.,  0., -0.,  0., -0., 0., -0., -0., -30., 0.,-0, 0., 90., -8., -30.]))
+r_leg_states.append(np.asarray([0., 0., 90.,  8., -30., -0.,  0., -0.,  0., -0., 0., -0., -5., -0., 0.,-0, 0., 90., -8., -30.]))
+r_leg_states.append(np.asarray([0., 0., 90.,  8., -30., -0.,  0., -0.,  0., -0., 0., -0., -5., 22., 0.,-0, 0., 90., -8., -30.]))
+r_leg_states.append(np.asarray([0., 0., 90.,  8., -30., -0.,  0., -0.,  0., -0., 0., -0., -4., -30., 0.,-0, 0., 90., -8., -30.]))
+r_leg_states.append(np.asarray([0., 0., 90.,  8., -30., -0.,  0.,  -0.,  0., -0., 0., -0.,  0., -0., 0.,-0, 0., 90., -8., -30.]))
 
 
 def trajectory_interpolate_record(start_state ,end_state ,n_steps ,wait_time ,r_logs = None,l_logs = None):
@@ -55,7 +55,7 @@ def trajectory_interpolate_record(start_state ,end_state ,n_steps ,wait_time ,r_
             ActuatorComm.set_command([(start_state[j] * math.pi / 180)for j in range(len(start_state))])
             time.sleep(wait_time)
             cam_log_squares = ArucoPosEstimation.get_camera_log()
-            q = [(start_state[j] * math.pi / 180) for j in range(11,17,1)]
+            q = [(start_state[j] * -1.*math.pi / 180) for j in range(11,17,1)]
             r_leg_calculated_Pts = square.square(None,F_kine.calculate_r_Pts(q),ArucoPosEstimation.arucoLength,None,2)
             l_leg_calculated_Pts = square.square(None,F_kine.calculate_l_Pts(init_l_q),ArucoPosEstimation.arucoLength,None,1)
             ArucoPosEstimation.show_desired_in_image(r_leg_calculated_Pts,l_leg_calculated_Pts)
