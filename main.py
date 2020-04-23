@@ -67,6 +67,7 @@ while (True):
     command = input("hello, issue your command my lord >> :D __DELI__")
     if command == 'c':
         r_logs,l_logs = collect_dataSet()
+        ArucoPosEstimation.cam0.videoCap.release()
         cv2.destroyAllWindows()
         print("calibrating right leg ...")
         R_leg_optimizer = PSO_optimizer.PSO(r_cost_func,initial,bounds,num_particles = 20,maxiter = 100)

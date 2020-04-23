@@ -32,21 +32,18 @@ def show_desired_in_image(r_leg_square,l_leg_square,CAMERA = None):
         cv2.circle(tmp_mat ,desired_r_Pts_on_image ,3 ,(10,255,10) ,thickness = -1 ,lineType = 8 ,shift = 0)
         cv2.circle(tmp_mat ,desired_l_Pts_on_image ,3 ,(10 , 255 ,10) ,thickness = -1 ,lineType = 8 ,shift = 0)
     cv2.imshow("<< Desired Squares IMG >>" ,tmp_mat)
-    #           ================================= 1.SHOULD BE TESTED ============================================
     cv2.waitKey(20)
-    
-    
-    # cv2.destroyAllWindows()
+
 def get_camera_log():
     cam0.update_frame()
     h ,w = cam0.frame.shape[:2]
     newcameramtx ,roi = cv2.getOptimalNewCameraMatrix(cam0.cameraMatrix ,cam0.distCoeffs ,(w ,h) , 1,(w ,h))
-    undistorted = cv2.undistort(cam0.frame ,cam0.cameraMatrix ,cam0.distCoeffs ,newcameramtx)
-    gray = cv2.cvtColor(undistorted ,cv2.COLOR_BGR2GRAY)
+    cam0.frame = cv2.undistort(cam0.frame ,cam0.cameraMatrix ,cam0.distCoeffs ,newcameramtx)
+    gray = cv2.cvtColor(cam0.frame ,cv2.COLOR_BGR2GRAY)
     aruco_dict = aruco.Dictionary_get(aruco.DICT_6X6_250)
     parameters = aruco.DetectorParameters_create()
     corners ,ids ,rejectedImgPoints = aruco.detectMarkers(gray ,aruco_dict ,parameters = parameters)
-    cam0.frame = aruco.drawDetectedMarkers(undistorted.copy() ,corners ,ids)
+    cam0.frame = aruco.drawDetectedMarkers(cam0.frame ,corners ,ids)
     if len(ids) == 2:
         arucoList = []
         for i in range(2):
