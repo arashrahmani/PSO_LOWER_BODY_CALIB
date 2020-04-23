@@ -15,9 +15,7 @@ def world_2_image(point3D,focalX,focalY,centerX,centerY,sX,sY):
     row = row / sY
     return (row,col)
 arucoLength = 0.03
-cameraIndx = 0
-cam0 = cameraConfig.camera(cameraIndx)
-cam0.set_camera_config()
+cam0 = cameraConfig.camera(cameraConfig.cameraIndx)
 def show_desired_in_image(r_leg_square,l_leg_square,CAMERA = None):
     r_leg_Pts = r_leg_square.get_Pts_for_show()
     l_leg_Pts = l_leg_square.get_Pts_for_show()
@@ -25,7 +23,7 @@ def show_desired_in_image(r_leg_square,l_leg_square,CAMERA = None):
         cam0.update_frame()
         tmp_mat=cam0.frame
     else:
-        tmp_mat = CAMERA.frame.copy()
+        tmp_mat = CAMERA.frame
     for i in range(4):
         row,col = world_2_image(r_leg_Pts[i] ,cam0.fX2Meter ,cam0.fY2Meter ,cam0.cX2Meter ,cam0.cY2Meter ,cameraConfig.sX ,cameraConfig.sY)
         desired_r_Pts_on_image = (int(col) ,int(row))
@@ -35,7 +33,7 @@ def show_desired_in_image(r_leg_square,l_leg_square,CAMERA = None):
         cv2.circle(tmp_mat ,desired_l_Pts_on_image ,3 ,(10 , 255 ,10) ,thickness = -1 ,lineType = 8 ,shift = 0)
     cv2.imshow("<< Desired Squares IMG >>" ,tmp_mat)
     #           ================================= 1.SHOULD BE TESTED ============================================
-    cv2.waitKey(30)
+    cv2.waitKey(20)
     
     
     # cv2.destroyAllWindows()
@@ -49,8 +47,8 @@ def get_camera_log():
     parameters = aruco.DetectorParameters_create()
     corners ,ids ,rejectedImgPoints = aruco.detectMarkers(gray ,aruco_dict ,parameters = parameters)
     cam0.frame = aruco.drawDetectedMarkers(undistorted.copy() ,corners ,ids)
-    arucoList = []
     if len(ids) == 2:
+        arucoList = []
         for i in range(2):
             corner2Pix = corners[i][0]
             corner2metre = np.zeros((4 ,2))
@@ -80,7 +78,6 @@ def get_camera_log():
             for cornerNum in range(0 ,4):
                 corners3D[cornerNum][0] = kc[cornerNum][0] * corners3D[cornerNum][2]
                 corners3D[cornerNum][1] = kc[cornerNum][1] * corners3D[cornerNum][2]
-                # =============================== 2.BUG FIX ===============================================
             arucoList.append(square(corner2metre ,corners3D ,arucoLength ,kc,ids[i]))
             # print(corners3D)
         return arucoList

@@ -1,6 +1,8 @@
 import cv2
 import numpy as np
 
+cameraIndx = 0
+
 sX = 0.0000025
 sY = 0.0000033
 
@@ -19,7 +21,8 @@ class camera:
     def __init__(self ,cameraIndx):
         self.index = cameraIndx
         self.videoCap = cv2.VideoCapture(cameraIndx)
-        self.update_frame()
+        self.set_camera_config()
+        # self.update_frame()
         self.cameraMatrix = np.asarray([
             [fX2Pixel ,0        ,cX2Pixel ],
             [0        ,fY2Pixel ,cY2Pixel ],
@@ -31,8 +34,7 @@ class camera:
         self.cX2Meter = cX2Pixel * sX
         self.cY2Meter = cY2Pixel * sY
     def update_frame(self):
-        _ ,fr = self.videoCap.read()
-        self.frame = fr.copy()
+        _ ,self.frame = self.videoCap.read()
     def set_camera_config(self):
         self.videoCap.set(3, 1920)
         self.videoCap.set(4, 1080)

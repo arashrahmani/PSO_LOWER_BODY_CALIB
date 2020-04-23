@@ -28,7 +28,9 @@ def collect_dataSet():
                 r_logs.append([trajectoryGenerator.init_r_q, cam_log_squares[i].get_leg_Pts_4_kinematics()])
             elif cam_log_squares[i].id == 1:
                 l_logs.append([trajectoryGenerator.init_l_q, cam_log_squares[i].get_leg_Pts_4_kinematics()])
-        time.sleep(wait_time_sec)
+        r_leg_calculated_Pts = square(None,F_kine.calculate_r_Pts(trajectoryGenerator.init_r_q),ArucoPosEstimation.arucoLength,None,2)
+        l_leg_calculated_Pts = square(None,F_kine.calculate_l_Pts(trajectoryGenerator.init_l_q),ArucoPosEstimation.arucoLength,None,1)
+        ArucoPosEstimation.show_desired_in_image(r_leg_calculated_Pts,l_leg_calculated_Pts,CAMERA = ArucoPosEstimation.cam0)
     for key,val in enumerate(trajectoryGenerator.r_leg_states):
         if key != len(trajectoryGenerator.r_leg_states) -1:
             trajectoryGenerator.trajectory_interpolate_record(val,trajectoryGenerator.r_leg_states[key + 1] ,n_steps ,wait_time_sec ,right_logs,None)
@@ -60,17 +62,16 @@ def l_cost_func(offsets):
     cost = np.sum(cost)/float(len(l_logs))
     return cost
 ActuatorComm.init()
+ArucoPosEstimation.cam0.set_camera_config()
 while (True):
     command = input("hello, issue your command my lord >> :D __DELI__")
     if command == 'c':
         r_logs,l_logs = collect_dataSet()
-        #--- COST FUNCTION ------------------------------------------------------------+
-        # function we are attempting to optimize (minimize)
         cv2.destroyAllWindows()
         print("calibrating right leg ...")
-        R_leg_optimizer = PSO_optimizer.PSO(r_cost_func,initial,bounds,num_particles = 20,maxiter = 25)
+        R_leg_optimizer = PSO_optimizer.PSO(r_cost_func,initial,bounds,num_particles = 20,maxiter = 100)
         print("done !\ncalibrating left leg ...")
-        L_leg_optimizer = PSO_optimizer.PSO(l_cost_func,initial,bounds,num_particles = 20,maxiter = 25)
+        L_leg_optimizer = PSO_optimizer.PSO(l_cost_func,initial,bounds,num_particles = 20,maxiter = 100)
         r_leg_offsets = R_leg_optimizer.best_global_pos
         l_leg_offsets = L_leg_optimizer.best_global_pos
         print('Best Right Leg Params:\n',R_leg_optimizer.best_global_pos)
@@ -86,10 +87,9 @@ while (True):
         cam_log_squares = ArucoPosEstimation.get_camera_log()
         corrected_l_q = np.add(trajectoryGenerator.init_l_q,l_leg_offsets)
         corrected_r_q = np.add(trajectoryGenerator.init_r_q,r_leg_offsets)
-        # [180/math.pi * i for i in l_leg_offsets]
         l_leg_calculated_Pts = square(None,F_kine.calculate_l_Pts(corrected_l_q),ArucoPosEstimation.arucoLength,None,1)
         r_leg_calculated_Pts = square(None,F_kine.calculate_r_Pts(corrected_r_q),ArucoPosEstimation.arucoLength,None,2)
         while(cv2.waitKey(1) != 27):
-            ArucoPosEstimation.show_desired_in_image(r_leg_calculated_Pts,l_leg_calculated_Pts,ArucoPosEstimation.cam0)
             ArucoPosEstimation.cam0.update_frame()
+            ArucoPosEstimation.show_desired_in_image(r_leg_calculated_Pts,l_leg_calculated_Pts)
         cv2.destroyAllWindows()  

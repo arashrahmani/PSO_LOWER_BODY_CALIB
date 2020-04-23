@@ -40,12 +40,12 @@ def mdh(_input, alpha, a, theta, d):
 def calculate_r_Pts(q):
     
     f = np.eye(4, dtype=float)
-    f = translate(f,0.05,0.1,-0.0055)
-    f = mdh(f,0., 0., q[0], 0.)
+    f = translate(f,0.05,0.1,0.0125)
+    f = mdh(f,0., 0., -q[0], 0.)
     f = mdh(f, math.pi/2., 0., q[1]+(math.pi/2.) ,0.)
-    f = mdh(f, math.pi/2, 0, q[2], 0)
-    f = mdh(f, 0.,0.120, q[3] ,0.)
-    f = mdh(f, 0.,0.120, q[4] ,0.)
+    f = mdh(f, math.pi/2, 0, -q[2], 0)
+    f = mdh(f, 0.,0.120, -q[3] ,0.)
+    f = mdh(f, 0.,0.120, -q[4] ,0.)
     f = mdh(f,-1.*math.pi/2., 0., q[5]-(math.pi/2.), 0.)
     f = mdh(f,-1.*math.pi/2., 0., 0., 0.0405)
     p1 = translate(f,-0.00798,-0.04193,0)
@@ -63,11 +63,11 @@ def calculate_r_Pts(q):
 def calculate_l_Pts(q):
     
     f = np.eye(4, dtype=float)
-    f = translate(f,-0.05,0.1,-0.0055)
-    f = mdh(f,0., 0., q[0], 0.)
+    f = translate(f,-0.07,0.1,0.0125)
+    f = mdh(f,0., 0., -q[0], 0.)
     f = mdh(f, math.pi/2., 0., q[1]+(math.pi/2.) ,0.)
-    f = mdh(f, math.pi/2., 0., q[2], 0.)
-    f = mdh(f, 0.,0.120, q[3] ,0.)
+    f = mdh(f, math.pi/2., 0., -q[2], 0.)
+    f = mdh(f, 0.,0.120, -q[3] ,0.)
     f = mdh(f, 0.,0.120, -q[4] ,0.)
     f = mdh(f,-1.*math.pi/2., 0., q[5]-(math.pi/2.), 0.)
     f = mdh(f,-1.*math.pi/2., 0., 0., 0.0405)

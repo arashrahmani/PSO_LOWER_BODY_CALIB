@@ -32,9 +32,6 @@ def init():
     for k,v in enumerate(trajectoryGenerator.init_state):
         commands[k] = v*math.pi/180
     set_command(commands)
-    # commands = get_command()
-    # commands = np.asarray(commands)
-    # commands = (commands / math.pi)*180
 def test(test_set):
     commands = get_command()
     for k,v in enumerate(test_set):
