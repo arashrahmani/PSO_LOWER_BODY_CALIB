@@ -39,44 +39,45 @@ def get_camera_log():
     h ,w = cam0.frame.shape[:2]
     newcameramtx ,roi = cv2.getOptimalNewCameraMatrix(cam0.cameraMatrix ,cam0.distCoeffs ,(w ,h) , 1,(w ,h))
     cam0.frame = cv2.undistort(cam0.frame ,cam0.cameraMatrix ,cam0.distCoeffs ,newcameramtx)
-    gray = cv2.cvtColor(cam0.frame ,cv2.COLOR_BGR2GRAY)
     aruco_dict = aruco.Dictionary_get(aruco.DICT_6X6_250)
     parameters = aruco.DetectorParameters_create()
-    corners ,ids ,rejectedImgPoints = aruco.detectMarkers(gray ,aruco_dict ,parameters = parameters)
+    corners ,ids ,rejectedImgPoints = aruco.detectMarkers(cam0.frame ,aruco_dict ,parameters = parameters)
     cam0.frame = aruco.drawDetectedMarkers(cam0.frame ,corners ,ids)
-    if len(ids) == 2:
-        arucoList = []
-        for i in range(2):
-            corner2Pix = corners[i][0]
-            corner2metre = np.zeros((4 ,2))
-            corners3D = np.zeros((4 ,3))
-            kc = np.zeros((4 ,2))
-            for row in range(0 ,4):
-                corner2metre[row][0] = (corner2Pix[row][0] * cameraConfig.sX) - cam0.cX2Meter
-                corner2metre[row][1] = (corner2Pix[row][1] * cameraConfig.sY) - cam0.cY2Meter
-                kc[row][0] = corner2metre[row][0] / cam0.fX2Meter
-                kc[row][1] = corner2metre[row][1] / cam0.fY2Meter
-            Q = [
-                [kc[1][0] ,kc[3][0] ,-kc[0][0] ],
-                [kc[1][1] ,kc[3][1] ,-kc[0][1] ],
-                [    1    ,    1    ,    -1    ]
-            ]
-            Qinv = np.linalg.inv(Q)
-            L0 = [kc[2][0] ,kc[2][1] ,1]
-            L = np.zeros(3)
-            for j in range(0 ,3):
-                for k in range(0 ,3):
-                    L[j] += Qinv[j][k] * L0[k]
-            M = math.pow((kc[1][0] * L[0]) - (kc[0][0] * L[2]) ,2) + math.pow(kc[1][1] * L[0] - kc[0][1] * L[2] ,2) + math.pow(L[0] - L[2] ,2)
-            corners3D[2][2] = arucoLength / math.sqrt(M)
-            corners3D[0][2] = L[2] * corners3D[2][2]
-            corners3D[1][2] = L[0] * corners3D[2][2]
-            corners3D[3][2] = L[1] * corners3D[2][2]
-            for cornerNum in range(0 ,4):
-                corners3D[cornerNum][0] = kc[cornerNum][0] * corners3D[cornerNum][2]
-                corners3D[cornerNum][1] = kc[cornerNum][1] * corners3D[cornerNum][2]
-            arucoList.append(square(corner2metre ,corners3D ,arucoLength ,kc,ids[i]))
-            # print(corners3D)
-        return arucoList
+    if ids is not None:
+        if len(ids) == 2:
+            arucoList = []
+            for i in range(2):
+                corner2Pix = corners[i][0]
+                corner2metre = np.zeros((4 ,2))
+                corners3D = np.zeros((4 ,3))
+                kc = np.zeros((4 ,2))
+                for row in range(0 ,4):
+                    corner2metre[row][0] = (corner2Pix[row][0] * cameraConfig.sX) - cam0.cX2Meter
+                    corner2metre[row][1] = (corner2Pix[row][1] * cameraConfig.sY) - cam0.cY2Meter
+                    kc[row][0] = corner2metre[row][0] / cam0.fX2Meter
+                    kc[row][1] = corner2metre[row][1] / cam0.fY2Meter
+                Q = [
+                    [kc[1][0] ,kc[3][0] ,-kc[0][0] ],
+                    [kc[1][1] ,kc[3][1] ,-kc[0][1] ],
+                    [    1    ,    1    ,    -1    ]
+                ]
+                Qinv = np.linalg.inv(Q)
+                L0 = [kc[2][0] ,kc[2][1] ,1]
+                L = np.zeros(3)
+                for j in range(0 ,3):
+                    for k in range(0 ,3):
+                        L[j] += Qinv[j][k] * L0[k]
+                M = math.pow((kc[1][0] * L[0]) - (kc[0][0] * L[2]) ,2) + math.pow(kc[1][1] * L[0] - kc[0][1] * L[2] ,2) + math.pow(L[0] - L[2] ,2)
+                corners3D[2][2] = arucoLength / math.sqrt(M)
+                corners3D[0][2] = L[2] * corners3D[2][2]
+                corners3D[1][2] = L[0] * corners3D[2][2]
+                corners3D[3][2] = L[1] * corners3D[2][2]
+                for cornerNum in range(0 ,4):
+                    corners3D[cornerNum][0] = kc[cornerNum][0] * corners3D[cornerNum][2]
+                    corners3D[cornerNum][1] = kc[cornerNum][1] * corners3D[cornerNum][2]
+                arucoList.append(square(corner2metre ,corners3D ,arucoLength ,kc,ids[i]))
+                # print(corners3D)
+            return arucoList
+        return None
     else:
         return None

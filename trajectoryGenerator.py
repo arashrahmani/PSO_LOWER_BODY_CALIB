@@ -52,7 +52,7 @@ def trajectory_interpolate_record(start_state ,end_state ,n_steps ,wait_time ,r_
         for k in range(n_steps):
             start_state = np.add(start_state , step_size)
             ActuatorComm.set_command([(start_state[j] * math.pi / 180)for j in range(len(start_state))])
-            time.sleep(wait_time)
+            # time.sleep(wait_time)
             cam_log_squares = ArucoPosEstimation.get_camera_log()
             q = [(start_state[j] * math.pi / 180) for j in range(11,17,1)]
             r_leg_calculated_Pts = square(None,F_kine.calculate_r_Pts(q),ArucoPosEstimation.arucoLength,None,2)

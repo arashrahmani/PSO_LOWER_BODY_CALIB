@@ -5,6 +5,7 @@ import numpy as np
 import F_kine
 import time
 import ArucoPosEstimation
+import cameraConfig
 import json
 import math
 import cv2
@@ -12,7 +13,7 @@ from square import square
 r_logs = []
 l_logs = []
 n_steps = 25
-wait_time_sec = 2
+wait_time_sec = 3
 r_leg_offsets = [0.0,0.0,0.0,0.0,0.0,0.0]
 l_leg_offsets = [0.0,0.0,0.0,0.0,0.0,0.0]
 initial = [0.0,-0.0,0.0,-0.0,0.0,0.0]                        # initial starting location [x1,x2...]
@@ -62,12 +63,13 @@ def l_cost_func(offsets):
     cost = np.sum(cost)/float(len(l_logs))
     return cost
 ActuatorComm.init()
-ArucoPosEstimation.cam0.set_camera_config()
+# ArucoPosEstimation.cam0.set_camera_config()
 while (True):
     command = input("hello, issue your command my lord >> :D __DELI__")
     if command == 'c':
         r_logs,l_logs = collect_dataSet()
-        ArucoPosEstimation.cam0.videoCap.release()
+        # ArucoPosEstimation.cam0.videoCap.release()
+        # ArucoPosEstimation.cam0.stop_streaming()
         cv2.destroyAllWindows()
         print("calibrating right leg ...")
         R_leg_optimizer = PSO_optimizer.PSO(r_cost_func,initial,bounds,num_particles = 20,maxiter = 100)
@@ -79,18 +81,19 @@ while (True):
         print('Best Left Leg Params:\n',L_leg_optimizer.best_global_pos)
     elif command == 't':
         print("test mode ")
-        all_motors = [0., 0., 90.,  8., -30.]+[-180/math.pi * i for i in l_leg_offsets]+ [-180/math.pi * i for i in r_leg_offsets]+[ 90., -8., -30.]
+        all_motors = [0., 0., 90.,  8., -30.]+[180/math.pi * i for i in l_leg_offsets]+ [180/math.pi * i for i in r_leg_offsets]+[ 90., -8., -30.]
         print("all motors: \n",all_motors)
-        # ActuatorComm.test(all_motors)
+        ActuatorComm.test(all_motors)
     elif command == 'v':
         ActuatorComm.init()
-        key = 0
-        cam_log_squares = ArucoPosEstimation.get_camera_log()
+        # cam_log_squares = ArucoPosEstimation.get_camera_log()
         corrected_l_q = np.add(trajectoryGenerator.init_l_q,l_leg_offsets)
         corrected_r_q = np.add(trajectoryGenerator.init_r_q,r_leg_offsets)
         l_leg_calculated_Pts = square(None,F_kine.calculate_l_Pts(corrected_l_q),ArucoPosEstimation.arucoLength,None,1)
         r_leg_calculated_Pts = square(None,F_kine.calculate_r_Pts(corrected_r_q),ArucoPosEstimation.arucoLength,None,2)
+        cam1 = cameraConfig.camera(0)
         while(cv2.waitKey(1) != 27):
             ArucoPosEstimation.cam0.update_frame()
             ArucoPosEstimation.show_desired_in_image(r_leg_calculated_Pts,l_leg_calculated_Pts)
-        cv2.destroyAllWindows()  
+        cv2.destroyAllWindows()
+        cam1.stop_streaming()
